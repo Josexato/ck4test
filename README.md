@@ -5,3 +5,5 @@
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%207-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
 
 A skeleton for creating applications with [CakePHP](https://cakephp.org) 4.x.
+
+ESto es una prueba para ver como cambian los archivos
