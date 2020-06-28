@@ -13,9 +13,12 @@ class ArticlesController extends AppController
     }
     public function view($slug = null)
     {
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        $article = $this->Articles->findBySlug($slug)
+                ->contain('Tags')
+                ->firstOrFail();
         $this->set(compact('article'));        
-    }    
+    }
+    
     public function add()
     {
         $article = $this->Articles->newEmptyEntity();
@@ -24,7 +27,7 @@ class ArticlesController extends AppController
 
             // Hardcoding the user_id is temporary, and will be removed later
             // when we build authentication out.
-            $article->user_id = 1;
+            //$article->user_id = 1;
 
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been saved.'));
@@ -40,23 +43,23 @@ class ArticlesController extends AppController
 
         $this->set('article', $article);
     }
-    
     public function edit($slug)
     {
         $article = $this->Articles
             ->findBySlug($slug)
+            ->contain('Tags') // load associated Tags
             ->firstOrFail();
-        if ($this->request->is(['post', 'put']))
-        {
+        if ($this->request->is(['post', 'put'])) {
             $this->Articles->patchEntity($article, $this->request->getData());
-            if ($this->Articles->save($article)) 
-            {
+            if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been updated.'));
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Unable to update your article.'));
         }
-        $this->set('article', $article);    
+        $tags = $this->Articles->Tags->find('list');
+        $this->set('tags', $tags);
+        $this->set('article', $article);
     }
     public function delete($slug)
     {
@@ -66,5 +69,16 @@ class ArticlesController extends AppController
             $this->Flash->success(__('The {0} article has been deleted.', $article->title));
             return $this->redirect(['action' => 'index']);
         }
+    }
+    public function tags(...$tags)
+    {
+        $articles = $this->Articles->find('tagged', [
+            'tags' => $tags
+        ]);
+
+        $this->set([
+            'articles' => $articles,
+            'tags' => $tags
+        ]);
     }
 }
